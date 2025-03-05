@@ -25,9 +25,13 @@ jobs:
           pip install -r requirements-dev.txt
           # Install the package in development mode
           pip install -e .
-      - name: Run tests
+      - name: Run unit tests
         run: |
-          PYTHONPATH=$PWD pytest --cov=src/borsdata_client tests/
+          PYTHONPATH=$PWD pytest --cov=src/borsdata_client tests/ -k "not integration"
+      - name: Run integration tests
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        run: |
+          PYTHONPATH=$PWD pytest --cov=src/borsdata_client tests/ -k "integration" --cov-append
         env:
           BORSDATA_API_KEY: ${{ secrets.BORSDATA_API_KEY }}
       - name: Upload coverage reports to Codecov

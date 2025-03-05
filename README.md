@@ -1,4 +1,6 @@
 # Borsdata API Client
+### [NOT AFFILIATED WITH BÖRSDATA]
+### [THIS IS A THIRD PARTY LIBRARY]
 
 A modern Python client for the Borsdata API, featuring:
 

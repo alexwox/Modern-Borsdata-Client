@@ -11,8 +11,18 @@ A modern Python client for the Borsdata API, featuring:
 
 ## Installation
 
+### From PyPI (Recommended)
+
 ```bash
-pip install -r requirements.txt
+pip install borsdata-client
+```
+
+### From Source
+
+```bash
+git clone https://github.com/yourusername/modern-borsdata-client.git
+cd modern-borsdata-client
+pip install -e .
 ```
 
 ## Quick Start
@@ -30,23 +40,56 @@ with BorsdataClient(api_key) as client:
     # Get all instruments
     instruments = client.get_instruments()
 
-    # Get stock prices for an instrument
+    # Get stock prices for a specific instrument
     today = datetime.now()
-    last_month = today - timedelta(days=30)
-    prices = client.get_stock_prices(
-        instrument_id=3,  # Example ID
-        from_date=last_month,
+    one_year_ago = today - timedelta(days=365)
+    stock_prices = client.get_stock_prices(
+        instrument_id=instruments[0].insId,
+        from_date=one_year_ago,
         to_date=today
     )
 
-    # Get financial reports
-    reports = client.get_reports(
-        instrument_id=3,
-        report_type="year",
-        max_count=5
-    )
+    # Print the results
+    print(f"Found {len(instruments)} instruments")
+    print(f"Got {len(stock_prices)} price points for {instruments[0].name}")
+```
 
-# The client will automatically close the connection when exiting the context
+## Using in Your Projects
+
+### As a Dependency
+
+Add to your project's requirements.txt:
+
+```
+borsdata-client>=0.1.0
+```
+
+Or in your pyproject.toml:
+
+```toml
+[project]
+dependencies = [
+    "borsdata-client>=0.1.0",
+]
+```
+
+### Environment Variables
+
+For better security, you can store your API key in an environment variable:
+
+```python
+import os
+from borsdata_client import BorsdataClient
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get API key from environment
+api_key = os.getenv("BORSDATA_API_KEY")
+
+# Initialize client
+client = BorsdataClient(api_key)
 ```
 
 ## Documentation

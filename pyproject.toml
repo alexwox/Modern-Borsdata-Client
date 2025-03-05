@@ -1,6 +1,45 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "borsdata-client"
+version = "0.1.0"
+description = "A modern Python client for the Borsdata API"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Topic :: Office/Business :: Financial :: Investment",
+]
+keywords = ["borsdata", "finance", "api", "stocks", "market data"]
+dependencies = [
+    "pydantic>=2.5.2",
+    "httpx>=0.25.2",
+    "python-dateutil>=2.8.2",
+    "typing-extensions>=4.8.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/modern-borsdata-client"
+"Bug Tracker" = "https://github.com/yourusername/modern-borsdata-client/issues"
+"Documentation" = "https://github.com/yourusername/modern-borsdata-client#readme"
+"Source Code" = "https://github.com/yourusername/modern-borsdata-client"
 
 [tool.black]
 line-length = 88

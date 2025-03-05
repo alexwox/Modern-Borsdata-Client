@@ -1,6 +1,14 @@
-"""Borsdata API Client - A modern Python client for the Borsdata API."""
+"""Borsdata API Client - A modern Python client for the Borsdata API.
 
-from .client import BorsdataClient
+This package provides a clean, typed interface to the Borsdata API for financial data.
+
+Example:
+    >>> from borsdata_client import BorsdataClient
+    >>> client = BorsdataClient("your_api_key")
+    >>> instruments = client.get_instruments()
+"""
+
+from .client import BorsdataClient, BorsdataClientError
 from .models import (
     Instrument,
     Branch,
@@ -25,6 +33,7 @@ from .models import (
 __version__ = "0.1.0"
 __all__ = [
     "BorsdataClient",
+    "BorsdataClientError",
     "Instrument",
     "Branch",
     "Market",

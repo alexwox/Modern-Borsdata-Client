@@ -105,3 +105,27 @@ coverage-report/
 
 # Logs
 *.log
+logs/
+
+# Local development files
+local_settings.py
+*.local.py
+*_local.py
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Data files
+*.csv
+*.xlsx
+*.json
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+
+# Temporary files
+*.tmp
+*.temp

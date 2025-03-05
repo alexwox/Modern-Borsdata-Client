@@ -11,9 +11,9 @@ import pytest
 from src.borsdata_client.client import BorsdataClient
 from src.borsdata_client.models import (
     Branch, Country, Market, Instrument, StockPrice, KpiMetadata,
-    Report, InsiderListResponse, ShortsListResponse, BuybackListResponse,
-    InstrumentDescriptionListResponse, ReportCalendarListResponse,
-    DividendCalendarListResponse, KpiAllResponse, StockPriceLastValue,
+    Report, InsiderResponse, ShortsResponse, BuybackResponse,
+    InstrumentDescription, ReportCalendarResponse,
+    DividendCalendarResponse, KpiAllResponse, StockPriceLastValue,
     StockSplit, TranslationMetadataResponse
 )
 
@@ -28,9 +28,15 @@ def create_mock_response(endpoint: str, data: dict):
     endpoint_parts = endpoint.strip('/').split('/')
     filename = '_'.join(endpoint_parts) + '.json'
     
+    fixtures_dir = Path(__file__).parent / 'fixtures'
+    fixtures_dir.mkdir(exist_ok=True)
+    
     fixture_path = fixtures_dir / filename
     with open(fixture_path, 'w') as f:
         json.dump(data, f)
+    
+    # Print for debugging
+    print(f"Created mock response file: {fixture_path}")
 
 
 # Test for get_branches
@@ -250,9 +256,9 @@ def test_get_reports(mock_client):
 # Test for get_kpi_metadata
 def test_get_kpi_metadata(mock_client):
     """Test the get_kpi_metadata method."""
-    # Create mock response
+    # Create mock response with the correct key
     create_mock_response('instruments/kpis/metadata', {
-        "kpiMetadatas": [
+        "kpiHistoryMetadatas": [
             {
                 "kpiId": 1,
                 "nameSv": "KPI 1 (SV)",
@@ -284,8 +290,8 @@ def test_get_kpi_metadata(mock_client):
 # Test for get_insider_holdings
 def test_get_insider_holdings(mock_client):
     """Test the get_insider_holdings method."""
-    # Create mock response
-    create_mock_response('instruments/1/insiders', {
+    # Create mock response with the correct path
+    create_mock_response('holdings/insider', {
         "list": [
             {
                 "insId": 1,
@@ -314,17 +320,17 @@ def test_get_insider_holdings(mock_client):
     
     # Verify the result
     assert len(insiders) == 1
-    assert isinstance(insiders[0], InsiderListResponse)
-    assert insiders[0].list[0].ins_id == 1
-    assert len(insiders[0].list[0].values) == 1
-    assert insiders[0].list[0].values[0].owner_name == "Test Owner"
+    assert isinstance(insiders[0], InsiderResponse)
+    assert insiders[0].ins_id == 1
+    assert len(insiders[0].values) == 1
+    assert insiders[0].values[0].owner_name == "Test Owner"
 
 
 # Test for get_short_positions
 def test_get_short_positions(mock_client):
     """Test the get_short_positions method."""
-    # Create mock response
-    create_mock_response('instruments/shorts', {
+    # Create mock response with the correct path
+    create_mock_response('holdings/shorts', {
         "list": [
             {
                 "insId": 1,
@@ -345,17 +351,17 @@ def test_get_short_positions(mock_client):
     
     # Verify the result
     assert len(shorts) == 1
-    assert isinstance(shorts[0], ShortsListResponse)
-    assert shorts[0].list[0].ins_id == 1
-    assert len(shorts[0].list[0].values) == 1
-    assert shorts[0].list[0].values[0].position_holder == "Test Holder"
+    assert isinstance(shorts[0], ShortsResponse)
+    assert shorts[0].ins_id == 1
+    assert len(shorts[0].values) == 1
+    assert shorts[0].values[0].position_holder == "Test Holder"
 
 
 # Test for get_buybacks
 def test_get_buybacks(mock_client):
     """Test the get_buybacks method."""
-    # Create mock response
-    create_mock_response('instruments/1/buybacks', {
+    # Create mock response with the correct path
+    create_mock_response('holdings/buyback', {
         "list": [
             {
                 "insId": 1,
@@ -380,17 +386,17 @@ def test_get_buybacks(mock_client):
     
     # Verify the result
     assert len(buybacks) == 1
-    assert isinstance(buybacks[0], BuybackListResponse)
-    assert buybacks[0].list[0].ins_id == 1
-    assert len(buybacks[0].list[0].values) == 1
-    assert buybacks[0].list[0].values[0].change == 1000
+    assert isinstance(buybacks[0], BuybackResponse)
+    assert buybacks[0].ins_id == 1
+    assert len(buybacks[0].values) == 1
+    assert buybacks[0].values[0].change == 1000
 
 
 # Test for get_instrument_descriptions
 def test_get_instrument_descriptions(mock_client):
     """Test the get_instrument_descriptions method."""
-    # Create mock response
-    create_mock_response('instruments/1/descriptions', {
+    # Create mock response with the correct path
+    create_mock_response('instruments/description', {
         "list": [
             {
                 "insId": 1,
@@ -406,16 +412,16 @@ def test_get_instrument_descriptions(mock_client):
     
     # Verify the result
     assert len(descriptions) == 1
-    assert isinstance(descriptions[0], InstrumentDescriptionListResponse)
-    assert descriptions[0].list[0].ins_id == 1
-    assert descriptions[0].list[0].text == "Test description"
+    assert isinstance(descriptions[0], InstrumentDescription)
+    assert descriptions[0].ins_id == 1
+    assert descriptions[0].text == "Test description"
 
 
 # Test for get_report_calendar
 def test_get_report_calendar(mock_client):
     """Test the get_report_calendar method."""
-    # Create mock response
-    create_mock_response('instruments/1/calendar/report', {
+    # Create mock response with the correct path
+    create_mock_response('instruments/report/calendar', {
         "list": [
             {
                 "insId": 1,
@@ -435,17 +441,17 @@ def test_get_report_calendar(mock_client):
     
     # Verify the result
     assert len(calendar) == 1
-    assert isinstance(calendar[0], ReportCalendarListResponse)
-    assert calendar[0].list[0].ins_id == 1
-    assert len(calendar[0].list[0].values) == 1
-    assert calendar[0].list[0].values[0].report_type == "Q1"
+    assert isinstance(calendar[0], ReportCalendarResponse)
+    assert calendar[0].ins_id == 1
+    assert len(calendar[0].values) == 1
+    assert calendar[0].values[0].report_type == "Q1"
 
 
 # Test for get_dividend_calendar
 def test_get_dividend_calendar(mock_client):
     """Test the get_dividend_calendar method."""
-    # Create mock response
-    create_mock_response('instruments/1/calendar/dividend', {
+    # Create mock response with the correct path
+    create_mock_response('instruments/dividend/calendar', {
         "list": [
             {
                 "insId": 1,
@@ -468,10 +474,10 @@ def test_get_dividend_calendar(mock_client):
     
     # Verify the result
     assert len(calendar) == 1
-    assert isinstance(calendar[0], DividendCalendarListResponse)
-    assert calendar[0].list[0].ins_id == 1
-    assert len(calendar[0].list[0].values) == 1
-    assert calendar[0].list[0].values[0].amount_paid == 1.5
+    assert isinstance(calendar[0], DividendCalendarResponse)
+    assert calendar[0].ins_id == 1
+    assert len(calendar[0].values) == 1
+    assert calendar[0].values[0].dividend_type == 1
 
 
 # Test for get_kpi_history
@@ -600,9 +606,9 @@ def test_get_last_global_stock_prices(mock_client):
 # Test for get_stock_prices_by_date
 def test_get_stock_prices_by_date(mock_client):
     """Test the get_stock_prices_by_date method."""
-    # Create mock response
+    # Create mock response with the correct path
     test_date = datetime(2023, 1, 15)
-    create_mock_response('instruments/stockprices/2023-01-15', {
+    create_mock_response('instruments/stockprices/date', {
         "values": [
             {
                 "i": 1,
@@ -630,9 +636,9 @@ def test_get_stock_prices_by_date(mock_client):
 # Test for get_global_stock_prices_by_date
 def test_get_global_stock_prices_by_date(mock_client):
     """Test the get_global_stock_prices_by_date method."""
-    # Create mock response
+    # Create mock response with the correct path
     test_date = datetime(2023, 1, 15)
-    create_mock_response('instruments/stockprices/global/2023-01-15', {
+    create_mock_response('instruments/stockprices/global/date', {
         "values": [
             {
                 "i": 1001,
@@ -692,8 +698,8 @@ def test_get_stock_splits(mock_client):
 # Test for get_translation_metadata
 def test_get_translation_metadata(mock_client):
     """Test the get_translation_metadata method."""
-    # Create mock response
-    create_mock_response('translations/metadata', {
+    # Create mock response with the correct path
+    create_mock_response('translationmetadata', {
         "branches": [
             {
                 "id": 1,

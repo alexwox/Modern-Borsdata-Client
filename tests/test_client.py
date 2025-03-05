@@ -3,6 +3,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
+import httpx
 
 from src.borsdata_client.client import BorsdataClient, BorsdataClientError
 
@@ -69,6 +70,12 @@ def test_get_method_error(mock_get):
     mock_response = MagicMock()
     mock_response.status_code = 400
     mock_response.json.return_value = {"error": "Bad Request"}
+    # Add raise_for_status method that raises an exception
+    mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+        "Bad Request", 
+        request=MagicMock(), 
+        response=mock_response
+    )
     mock_get.return_value = mock_response
     
     # Create client and call _get

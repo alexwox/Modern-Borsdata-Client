@@ -70,12 +70,14 @@ class BorsdataClient:
 
         try:
             response = self._client.get(f"{self.BASE_URL}{endpoint}", params=params)
-            response.raise_for_status()
+            response.raise_for_status()  # This will raise an HTTPError for 4XX/5XX responses
             return response.json()
-        except httpx.HTTPError as e:
-            raise BorsdataClientError(f"HTTP request failed: {str(e)}") from e
-        except ValueError as e:
-            raise BorsdataClientError(f"Failed to parse JSON response: {str(e)}") from e
+        except httpx.HTTPStatusError as e:
+            error_msg = str(e)
+            status_code = e.response.status_code
+            raise BorsdataClientError(f"API request failed with status code {status_code}: {error_msg}") from e
+        except Exception as e:
+            raise BorsdataClientError(f"API request failed: {str(e)}") from e
 
     def get_branches(self) -> List[Branch]:
         """Get all branches/industries.

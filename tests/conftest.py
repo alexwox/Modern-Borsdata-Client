@@ -44,8 +44,28 @@ def mock_client(monkeypatch):
             with open(fixture_path, 'r') as f:
                 return json.load(f)
         else:
-            # If no fixture file exists, return an empty response
-            return {}
+            # If no fixture file exists, return an appropriate empty response
+            # based on the endpoint
+            if endpoint == "/instruments/kpis/metadata":
+                return {"kpiHistoryMetadatas": []}
+            elif endpoint.startswith("/holdings/insider"):
+                return {"list": []}
+            elif endpoint.startswith("/holdings/shorts"):
+                return {"list": []}
+            elif endpoint.startswith("/holdings/buyback"):
+                return {"list": []}
+            elif endpoint.startswith("/instruments/description"):
+                return {"list": []}
+            elif endpoint.startswith("/instruments/report/calendar"):
+                return {"list": []}
+            elif endpoint.startswith("/instruments/dividend/calendar"):
+                return {"list": []}
+            elif endpoint.startswith("/instruments/stockprices/date") or endpoint.startswith("/instruments/stockprices/global/date"):
+                return {"values": []}
+            elif endpoint == "/translationmetadata":
+                return {"branches": [], "sectors": [], "countries": []}
+            else:
+                return {}
     
     # Replace the _get method with our mock
     monkeypatch.setattr(client, '_get', mock_get.__get__(client))

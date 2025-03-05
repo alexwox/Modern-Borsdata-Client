@@ -147,6 +147,8 @@ def test_rate_limit_handling(mock_get):
     with pytest.raises(BorsdataClientError) as excinfo:
         client.get_branches()
     
+    # Check that the error message contains the original error
+    assert "429" in str(excinfo.value)
     assert "Rate limit exceeded" in str(excinfo.value)
 
 
@@ -171,6 +173,8 @@ def test_unauthorized_handling(mock_get):
     with pytest.raises(BorsdataClientError) as excinfo:
         client.get_branches()
     
+    # Check that the error message contains the original error
+    assert "401" in str(excinfo.value)
     assert "Unauthorized" in str(excinfo.value)
 
 
@@ -280,6 +284,8 @@ def test_server_error_handling(mock_get):
     with pytest.raises(BorsdataClientError) as excinfo:
         client.get_branches()
     
+    # Check that the error message contains the original error
+    assert "500" in str(excinfo.value)
     assert "Internal Server Error" in str(excinfo.value)
 
 

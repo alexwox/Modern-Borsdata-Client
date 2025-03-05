@@ -1,0 +1,1 @@
+{"markets": [{"id": 1, "name": "Test Market 1", "countryId": 10, "isIndex": false, "exchangeName": "Exchange 1"}, {"id": 2, "name": "Test Market 2", "countryId": 20, "isIndex": true, "exchangeName": "Exchange 2"}]}

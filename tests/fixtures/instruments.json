@@ -1,0 +1,1 @@
+{"instruments": [{"insId": 1, "name": "Test Instrument 1", "urlName": "test-instrument-1", "instrument": 1, "isin": "SE0001234567", "ticker": "TEST1", "yahoo": "TEST1.ST", "sectorId": 10, "marketId": 1, "branchId": 5, "countryId": 2, "listingDate": "2020-01-01", "stockPriceCurrency": "SEK", "reportCurrency": "SEK"}]}

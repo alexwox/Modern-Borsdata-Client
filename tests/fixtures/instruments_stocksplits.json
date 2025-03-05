@@ -1,0 +1,1 @@
+{"stockSplits": [{"insId": 1, "splitDate": "2023-01-15T00:00:00", "splitRatio": 2.0, "splitType": "split"}, {"insId": 2, "splitDate": "2023-02-15T00:00:00", "splitRatio": 0.5, "splitType": "reverse"}]}

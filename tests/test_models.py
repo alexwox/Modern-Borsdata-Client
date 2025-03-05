@@ -296,7 +296,7 @@ def test_stock_price_last_value_model():
 def test_stock_price_last_response_model():
     """Test the StockPriceLastResponse model."""
     data = {
-        "values": [
+        "stockPricesList": [
             {
                 "i": 1,
                 "d": "2020-01-01",
@@ -407,32 +407,39 @@ def test_translation_item_model():
 def test_translation_metadata_response_model():
     """Test the TranslationMetadataResponse model."""
     data = {
-        "branches": [
+        "translationMetadatas": [
             {
-                "id": 1,
                 "nameSv": "Test Branch SV",
-                "nameEn": "Test Branch EN"
-            }
-        ],
-        "sectors": [
+                "nameEn": "Test Branch EN",
+                "translationKey": "L_BRANCH_1"
+            },
             {
-                "id": 1,
                 "nameSv": "Test Sector SV",
-                "nameEn": "Test Sector EN"
-            }
-        ],
-        "countries": [
+                "nameEn": "Test Sector EN",
+                "translationKey": "L_SECTOR_1"
+            },
             {
-                "id": 1,
                 "nameSv": "Test Country SV",
-                "nameEn": "Test Country EN"
+                "nameEn": "Test Country EN",
+                "translationKey": "L_COUNTRY_1"
             }
         ]
     }
     translation_metadata_response = TranslationMetadataResponse(**data)
+    
+    # Debug prints
+    print("Branches:", translation_metadata_response.branches)
+    print("First branch:", translation_metadata_response.branches[0])
+    print("First branch name_sv:", translation_metadata_response.branches[0].name_sv)
+    print("First branch name_en:", translation_metadata_response.branches[0].name_en)
+    print("First branch dict:", translation_metadata_response.branches[0].dict())
+    
     assert len(translation_metadata_response.branches) == 1
     assert translation_metadata_response.branches[0].id == 1
+    assert translation_metadata_response.branches[0].name_sv == "Test Branch SV"
     assert len(translation_metadata_response.sectors) == 1
     assert translation_metadata_response.sectors[0].id == 1
+    assert translation_metadata_response.sectors[0].name_sv == "Test Sector SV"
     assert len(translation_metadata_response.countries) == 1
-    assert translation_metadata_response.countries[0].id == 1 
+    assert translation_metadata_response.countries[0].id == 1
+    assert translation_metadata_response.countries[0].name_sv == "Test Country SV" 

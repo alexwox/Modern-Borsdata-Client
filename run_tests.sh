@@ -1,12 +1,17 @@
 #!/bin/bash
 
-# Run unit tests by default
+# Load environment variables from .env file
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Run tests
 if [ "$1" == "--all" ]; then
     echo "Running all tests..."
-    python3 -m pytest
+    python -m pytest
 elif [ "$1" == "--integration" ]; then
     echo "Running integration tests..."
-    python3 -m pytest -m "integration"
+    python -m pytest tests/test_integration.py -v
 elif [ "$1" == "--coverage" ]; then
     echo "Running tests with coverage report..."
     python3 -m pytest --cov=src --cov-report=term-missing
@@ -18,8 +23,8 @@ elif [ "$1" == "--edge-cases" ]; then
     python3 -m pytest tests/test_edge_cases.py
 elif [ "$1" == "--performance" ]; then
     echo "Running performance tests..."
-    python -m pytest -m "performance"
+    python -m pytest tests/test_performance.py -v
 else
-    echo "Running unit tests only..."
-    python3 -m pytest -m "not integration and not performance"
+    echo "Running unit tests..."
+    python -m pytest tests/test_client.py tests/test_models.py tests/test_errors.py tests/test_edge_cases.py tests/test_model_validation.py
 fi 

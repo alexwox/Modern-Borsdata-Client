@@ -43,13 +43,13 @@ def test_empty_response_handling(monkeypatch):
         elif endpoint == "/instruments/dividends/calendar":
             return {"list": []}
         elif endpoint == "/instruments/stockprices/last":
-            return {"values": []}
+            return {"stockPricesList": []}
         elif endpoint == "/instruments/stockprices/global/last":
-            return {"values": []}
+            return {"stockPricesList": []}
         elif endpoint.startswith("/instruments/stockprices/"):
-            return {"values": []}
+            return {"stockPricesList": []}
         elif endpoint.startswith("/instruments/stockprices/global/"):
-            return {"values": []}
+            return {"stockPricesList": []}
         elif endpoint == "/instruments/stocksplits":
             return {"stockSplits": []}
         elif endpoint == "/instruments/StockSplits":
@@ -64,6 +64,8 @@ def test_empty_response_handling(monkeypatch):
             return {"list": []}
         elif endpoint == "/instruments/dividend/calendar":
             return {"list": []}
+        elif endpoint == "/translationmetadata":
+            return {"translationMetadatas": []}
         else:
             return {}
     
@@ -104,7 +106,7 @@ def test_date_parameter_handling():
         if endpoint.startswith("/instruments/") and endpoint.endswith("/stockprices"):
             return {"instrument": 1, "stockPricesList": []}
         elif endpoint.startswith("/instruments/stockprices/"):
-            return {"values": []}
+            return {"stockPricesList": []}
         else:
             return {}
     

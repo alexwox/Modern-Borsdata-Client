@@ -269,12 +269,17 @@ class StockPriceLastValue(BaseModel):
     l: float = Field(description="Low price")
     c: float = Field(description="Closing price")
     o: float = Field(description="Opening price")
-    v: int = Field(description="Volume")
+    v: Optional[int] = Field(None, description="Volume")
 
 
 class StockPriceLastResponse(BaseModel):
     """Response model for last stock prices."""
-    values: List[StockPriceLastValue]
+    stockPricesList: List[Dict[str, Any]]
+    
+    @property
+    def values(self) -> List[StockPriceLastValue]:
+        """Convert the stockPricesList to a list of StockPriceLastValue objects."""
+        return [StockPriceLastValue(**item) for item in self.stockPricesList]
 
 
 class StockSplit(BaseModel):
@@ -299,6 +304,55 @@ class TranslationItem(BaseModel):
 
 class TranslationMetadataResponse(BaseModel):
     """Response model for translation metadata."""
-    branches: Optional[List[TranslationItem]]
-    sectors: Optional[List[TranslationItem]]
-    countries: Optional[List[TranslationItem]] 
+    translationMetadatas: List[Dict[str, Any]]
+    
+    @property
+    def branches(self) -> List[TranslationItem]:
+        """Get branch translations."""
+        result = []
+        for item in self.translationMetadatas:
+            if item.get("translationKey", "").startswith("L_BRANCH_"):
+                try:
+                    branch_id = int(item.get("translationKey", "").split("_")[-1])
+                    result.append(TranslationItem(
+                        id=branch_id,
+                        nameSv=item.get("nameSv"),
+                        nameEn=item.get("nameEn")
+                    ))
+                except (ValueError, IndexError):
+                    pass
+        return result
+    
+    @property
+    def sectors(self) -> List[TranslationItem]:
+        """Get sector translations."""
+        result = []
+        for item in self.translationMetadatas:
+            if item.get("translationKey", "").startswith("L_SECTOR_"):
+                try:
+                    sector_id = int(item.get("translationKey", "").split("_")[-1])
+                    result.append(TranslationItem(
+                        id=sector_id,
+                        nameSv=item.get("nameSv"),
+                        nameEn=item.get("nameEn")
+                    ))
+                except (ValueError, IndexError):
+                    pass
+        return result
+    
+    @property
+    def countries(self) -> List[TranslationItem]:
+        """Get country translations."""
+        result = []
+        for item in self.translationMetadatas:
+            if item.get("translationKey", "").startswith("L_COUNTRY_"):
+                try:
+                    country_id = int(item.get("translationKey", "").split("_")[-1])
+                    result.append(TranslationItem(
+                        id=country_id,
+                        nameSv=item.get("nameSv"),
+                        nameEn=item.get("nameEn")
+                    ))
+                except (ValueError, IndexError):
+                    pass
+        return result 

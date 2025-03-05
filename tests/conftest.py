@@ -61,9 +61,11 @@ def mock_client(monkeypatch):
             elif endpoint.startswith("/instruments/dividend/calendar"):
                 return {"list": []}
             elif endpoint.startswith("/instruments/stockprices/date") or endpoint.startswith("/instruments/stockprices/global/date"):
-                return {"values": []}
+                return {"stockPricesList": []}
+            elif endpoint.startswith("/instruments/stockprices/last") or endpoint.startswith("/instruments/stockprices/global/last"):
+                return {"stockPricesList": []}
             elif endpoint == "/translationmetadata":
-                return {"branches": [], "sectors": [], "countries": []}
+                return {"translationMetadatas": []}
             else:
                 return {}
     

@@ -1,1 +1,1 @@
-{"branches": [{"id": 1, "nameSv": "Branch 1 (SV)", "nameEn": "Branch 1 (EN)"}], "sectors": [{"id": 10, "nameSv": "Sector 1 (SV)", "nameEn": "Sector 1 (EN)"}], "countries": [{"id": 2, "nameSv": "Country 1 (SV)", "nameEn": "Country 1 (EN)"}]}
+{"translationMetadatas": [{"nameSv": "Branch 1 (SV)", "nameEn": "Branch 1 (EN)", "translationKey": "L_BRANCH_1"}, {"nameSv": "Sector 1 (SV)", "nameEn": "Sector 1 (EN)", "translationKey": "L_SECTOR_10"}, {"nameSv": "Country 1 (SV)", "nameEn": "Country 1 (EN)", "translationKey": "L_COUNTRY_2"}]}

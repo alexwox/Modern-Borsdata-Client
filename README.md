@@ -11,12 +11,6 @@ A modern Python client for the Borsdata API, featuring:
 
 ## Installation
 
-### From PyPI (Recommended)
-
-```bash
-pip install borsdata-client
-```
-
 ### From Source
 
 ```bash

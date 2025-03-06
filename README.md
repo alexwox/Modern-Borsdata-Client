@@ -2,7 +2,7 @@
 ### [NOT AFFILIATED WITH BÖRSDATA]
 ### [THIS IS A THIRD PARTY LIBRARY]
 
-A modern Python client for the Borsdata API, featuring:
+This is a modern Python client for the Borsdata API, featuring:
 
 - Full type hints and modern Python features
 - Pydantic models for request/response validation
@@ -10,6 +10,9 @@ A modern Python client for the Borsdata API, featuring:
 - Comprehensive error handling
 - Context manager support
 - Intuitive API design
+
+For the official documentation check out: 
+[https://github.com/Borsdata-Sweden/API]
 
 ## Installation
 

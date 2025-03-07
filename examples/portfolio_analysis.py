@@ -66,7 +66,7 @@ def calculate_portfolio_value(
             instrument = get_instrument_by_ticker(client, ticker)
             
             # Get historical prices
-            prices = get_historical_prices(client, instrument.insId)
+            prices = get_historical_prices(client, instrument.ins_id)
             
             if not prices:
                 print(f"No price data available for {ticker}")

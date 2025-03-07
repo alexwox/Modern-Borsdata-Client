@@ -6,11 +6,7 @@ This directory contains example scripts demonstrating how to use the Borsdata AP
 
 Before running these examples, make sure you have:
 
-1. Installed the borsdata-client package:
-
-   ```bash
-   pip install borsdata-client
-   ```
+1. Installed the borsdata-client package by cloning the repo.
 
 2. Set up your API key as an environment variable or in a `.env` file:
    ```

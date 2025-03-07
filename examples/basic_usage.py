@@ -43,7 +43,7 @@ def main():
             one_month_ago = today - timedelta(days=30)
             
             prices = client.get_stock_prices(
-                instrument_id=instrument.insId,
+                instrument_id=instrument.ins_id,
                 from_date=one_month_ago,
                 to_date=today
             )

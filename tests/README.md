@@ -46,6 +46,12 @@ pip install -r requirements-dev.txt
 ./run_tests.sh --models
 ```
 
+### Run Endpoint Tests Only
+
+```bash
+./run_tests.sh --endpoints
+```
+
 ### Run Edge Case Tests Only
 
 ```bash

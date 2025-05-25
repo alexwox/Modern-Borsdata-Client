@@ -1,33 +1,60 @@
 """Tests for the Pydantic models used in the BorsdataClient."""
 
-import pytest
 from datetime import datetime
 from typing import List, Optional
 
+import pytest
+
 from src.borsdata_client.models import (
-    Branch, Country, Market, Sector, Instrument, StockPrice, KpiMetadata,
-    Report, InsiderRow, InsiderResponse, InsiderListResponse,
-    ShortPosition, ShortsResponse, ShortsListResponse,
-    BuybackRow, BuybackResponse, BuybackListResponse,
-    InstrumentDescription, InstrumentDescriptionListResponse,
-    ReportCalendarDate, ReportCalendarResponse, ReportCalendarListResponse,
-    DividendDate, DividendCalendarResponse, DividendCalendarListResponse,
-    KpiValue, KpiAllResponse, KpiCalcUpdatedResponse,
-    StockPriceLastValue, StockPriceLastResponse,
-    StockSplit, StockSplitResponse,
-    TranslationItem, TranslationMetadataResponse,
-    BranchesResponse, CountriesResponse, MarketsResponse, InstrumentsResponse,
-    StockPricesResponse
+    Branch,
+    BranchesResponse,
+    BuybackListResponse,
+    BuybackResponse,
+    BuybackRow,
+    CountriesResponse,
+    Country,
+    DividendCalendarListResponse,
+    DividendCalendarResponse,
+    DividendDate,
+    InsiderListResponse,
+    InsiderResponse,
+    InsiderRow,
+    Instrument,
+    InstrumentDescription,
+    InstrumentDescriptionListResponse,
+    InstrumentsResponse,
+    KpiAllResponse,
+    KpiCalcUpdatedResponse,
+    KpiMetadata,
+    KpisSummaryResponse,
+    KpiSummaryGroup,
+    KpiSummaryValue,
+    KpiValue,
+    Market,
+    MarketsResponse,
+    Report,
+    ReportCalendarDate,
+    ReportCalendarListResponse,
+    ReportCalendarResponse,
+    Sector,
+    SectorsResponse,
+    ShortPosition,
+    ShortsListResponse,
+    ShortsResponse,
+    StockPrice,
+    StockPriceLastResponse,
+    StockPriceLastValue,
+    StockPricesResponse,
+    StockSplit,
+    StockSplitResponse,
+    TranslationItem,
+    TranslationMetadataResponse,
 )
 
 
 def test_branch_model():
     """Test the Branch model."""
-    data = {
-        "id": 1,
-        "name": "Test Branch",
-        "sectorId": 10
-    }
+    data = {"id": 1, "name": "Test Branch", "sectorId": 10}
     branch = Branch(**data)
     assert branch.id == 1
     assert branch.name == "Test Branch"
@@ -36,10 +63,7 @@ def test_branch_model():
 
 def test_country_model():
     """Test the Country model."""
-    data = {
-        "id": 1,
-        "name": "Test Country"
-    }
+    data = {"id": 1, "name": "Test Country"}
     country = Country(**data)
     assert country.id == 1
     assert country.name == "Test Country"
@@ -52,7 +76,7 @@ def test_market_model():
         "name": "Test Market",
         "countryId": 10,
         "isIndex": True,
-        "exchangeName": "Test Exchange"
+        "exchangeName": "Test Exchange",
     }
     market = Market(**data)
     assert market.id == 1
@@ -64,13 +88,26 @@ def test_market_model():
 
 def test_sector_model():
     """Test the Sector model."""
-    data = {
-        "id": 1,
-        "name": "Test Sector"
-    }
+    data = {"id": 1, "name": "Test Sector"}
     sector = Sector(**data)
     assert sector.id == 1
     assert sector.name == "Test Sector"
+
+
+def test_sectors_response_model():
+    """Test the SectorsResponse model."""
+    data = {
+        "sectors": [
+            {"id": 1, "name": "Test Sector 1"},
+            {"id": 2, "name": "Test Sector 2"},
+        ]
+    }
+    sectors_response = SectorsResponse(**data)
+    assert len(sectors_response.sectors) == 2
+    assert sectors_response.sectors[0].id == 1
+    assert sectors_response.sectors[0].name == "Test Sector 1"
+    assert sectors_response.sectors[1].id == 2
+    assert sectors_response.sectors[1].name == "Test Sector 2"
 
 
 def test_instrument_model():
@@ -89,7 +126,7 @@ def test_instrument_model():
         "countryId": 1,
         "listingDate": "2020-01-01T00:00:00",
         "stockPriceCurrency": "SEK",
-        "reportCurrency": "SEK"
+        "reportCurrency": "SEK",
     }
     instrument = Instrument(**data)
     assert instrument.ins_id == 1
@@ -110,14 +147,7 @@ def test_instrument_model():
 
 def test_stock_price_model():
     """Test the StockPrice model."""
-    data = {
-        "d": "2020-01-01",
-        "h": 100.0,
-        "l": 90.0,
-        "c": 95.0,
-        "o": 92.0,
-        "v": 1000
-    }
+    data = {"d": "2020-01-01", "h": 100.0, "l": 90.0, "c": 95.0, "o": 92.0, "v": 1000}
     stock_price = StockPrice(**data)
     assert stock_price.d == "2020-01-01"
     assert stock_price.h == 100.0
@@ -125,7 +155,7 @@ def test_stock_price_model():
     assert stock_price.c == 95.0
     assert stock_price.o == 92.0
     assert stock_price.v == 1000
-    
+
     # Test the get_date method
     assert stock_price.get_date() == datetime(2020, 1, 1)
 
@@ -137,7 +167,7 @@ def test_kpi_metadata_model():
         "nameSv": "Test KPI SV",
         "nameEn": "Test KPI EN",
         "format": "percent",
-        "isString": False
+        "isString": False,
     }
     kpi_metadata = KpiMetadata(**data)
     assert kpi_metadata.kpi_id == 1
@@ -145,6 +175,58 @@ def test_kpi_metadata_model():
     assert kpi_metadata.name_en == "Test KPI EN"
     assert kpi_metadata.format == "percent"
     assert kpi_metadata.is_string is False
+
+
+def test_kpi_summary_group_model():
+    """Test the KpiSummaryGroup model."""
+    data = {
+        "KpiId": 1,
+        "values": [],
+    }
+    kpi_summary_group = KpiSummaryGroup(**data)
+    assert kpi_summary_group.kpi_id == 1
+    assert isinstance(kpi_summary_group.values, list)
+
+
+def test_kpi_summary_value_model():
+    """Test the KpiSummaryValue model."""
+    data = {
+        "y": 2020,
+        "p": 1,
+        "v": 100.0,
+    }
+    kpi_summary_value = KpiSummaryValue(**data)
+    assert kpi_summary_value.year == 2020
+    assert kpi_summary_value.period == 1
+    assert kpi_summary_value.value == 100.0
+
+
+def test_kpi_summary_response_model():
+    """Test the KpiSummaryResponse model."""
+    data = {
+        "instrument": 1,
+        "reportType": "Test Year",
+        "kpis": [
+            {
+                "KpiId": 1,
+                "values": [
+                    {
+                        "y": 2020,
+                        "p": 1,
+                        "v": 100.0,
+                    }
+                ],
+            }
+        ],
+    }
+    kpi_summary_response = KpisSummaryResponse(**data)
+    assert kpi_summary_response.instrument == 1
+    assert kpi_summary_response.report_type == "Test Year"
+    assert len(kpi_summary_response.kpis) == 1
+    assert kpi_summary_response.kpis[0].kpi_id == 1
+    assert kpi_summary_response.kpis[0].values[0].year == 2020
+    assert kpi_summary_response.kpis[0].values[0].period == 1
+    assert kpi_summary_response.kpis[0].values[0].value == 100.0
 
 
 def test_report_model():
@@ -164,7 +246,29 @@ def test_report_model():
         "tangible_Assets": 400.0,
         "financial_Assets": 500.0,
         "non_Current_Assets": 1200.0,
-        "cash_And_Equivalents": 200.0
+        "cash_And_Equivalents": 200.0,
+        "current_Assets": 1500.0,
+        "total_Assets": 3000.0,
+        "total_Equity": 1800.0,
+        "non_Current_Liabilities": 700.0,
+        "current_Liabilities": 500.0,
+        "total_Liabilities_And_Equity": 3000.0,
+        "net_Debt": 100.0,
+        "cash_Flow_From_Operating_Activities": 600.0,
+        "cash_Flow_From_Investing_Activities": -200.0,
+        "cash_Flow_From_Financing_Activities": -100.0,
+        "cash_Flow_For_The_Year": 300.0,
+        "free_Cash_Flow": 400.0,
+        "stock_Price_Average": 50.0,
+        "stock_Price_High": 60.0,
+        "stock_Price_Low": 40.0,
+        "report_Start_Date": "2020-01-01T00:00:00",
+        "report_End_Date": "2020-12-31T00:00:00",
+        "broken_Fiscal_Year": False,
+        "currency": "USD",
+        "currency_Ratio": 1.0,
+        "net_Sales": 950.0,
+        "report_Date": "2021-01-31T00:00:00",
     }
     report = Report(**data)
     assert report.year == 2020
@@ -182,6 +286,28 @@ def test_report_model():
     assert report.financial_assets == 500.0
     assert report.non_current_assets == 1200.0
     assert report.cash_and_equivalents == 200.0
+    assert report.current_assets == 1500.0
+    assert report.total_assets == 3000.0
+    assert report.total_equity == 1800.0
+    assert report.non_current_liabilities == 700.0
+    assert report.current_liabilities == 500.0
+    assert report.total_liabilities_and_equity == 3000.0
+    assert report.net_debt == 100.0
+    assert report.cash_flow_from_operating_activities == 600.0
+    assert report.cash_flow_from_investing_activities == -200.0
+    assert report.cash_flow_from_financing_activities == -100.0
+    assert report.cash_flow_for_the_year == 300.0
+    assert report.free_cash_flow == 400.0
+    assert report.stock_price_average == 50.0
+    assert report.stock_price_high == 60.0
+    assert report.stock_price_low == 40.0
+    assert report.report_start_date == datetime(2020, 1, 1)
+    assert report.report_end_date == datetime(2020, 12, 31)
+    assert report.broken_fiscal_year is False
+    assert report.currency == "USD"
+    assert report.currency_ratio == 1.0
+    assert report.net_sales == 950.0
+    assert report.report_date == datetime(2021, 1, 31)
 
 
 def test_insider_row_model():
@@ -197,7 +323,7 @@ def test_insider_row_model():
         "currency": "SEK",
         "transactionType": 1,
         "verificationDate": "2020-01-01T00:00:00",
-        "transactionDate": "2020-01-01T00:00:00"
+        "transactionDate": "2020-01-01T00:00:00",
     }
     insider_row = InsiderRow(**data)
     assert insider_row.misc is False
@@ -229,10 +355,10 @@ def test_insider_response_model():
                 "currency": "SEK",
                 "transactionType": 1,
                 "verificationDate": "2020-01-01T00:00:00",
-                "transactionDate": "2020-01-01T00:00:00"
+                "transactionDate": "2020-01-01T00:00:00",
             }
         ],
-        "error": None
+        "error": None,
     }
     insider_response = InsiderResponse(**data)
     assert insider_response.ins_id == 1
@@ -259,10 +385,10 @@ def test_insider_list_response_model():
                         "currency": "SEK",
                         "transactionType": 1,
                         "verificationDate": "2020-01-01T00:00:00",
-                        "transactionDate": "2020-01-01T00:00:00"
+                        "transactionDate": "2020-01-01T00:00:00",
                     }
                 ],
-                "error": None
+                "error": None,
             }
         ]
     }
@@ -281,7 +407,7 @@ def test_stock_price_last_value_model():
         "l": 90.0,
         "c": 95.0,
         "o": 92.0,
-        "v": 1000
+        "v": 1000,
     }
     stock_price_last_value = StockPriceLastValue(**data)
     assert stock_price_last_value.i == 1
@@ -304,7 +430,7 @@ def test_stock_price_last_response_model():
                 "l": 90.0,
                 "c": 95.0,
                 "o": 92.0,
-                "v": 1000
+                "v": 1000,
             }
         ]
     }
@@ -316,11 +442,7 @@ def test_stock_price_last_response_model():
 
 def test_kpi_value_model():
     """Test the KpiValue model."""
-    data = {
-        "i": 1,
-        "n": 100.0,
-        "s": "Test"
-    }
+    data = {"i": 1, "n": 100.0, "s": "Test"}
     kpi_value = KpiValue(**data)
     assert kpi_value.i == 1
     assert kpi_value.n == 100.0
@@ -333,13 +455,7 @@ def test_kpi_all_response_model():
         "kpiId": 1,
         "group": "Test Group",
         "calculation": "Test Calculation",
-        "values": [
-            {
-                "i": 1,
-                "n": 100.0,
-                "s": "Test"
-            }
-        ]
+        "values": [{"i": 1, "n": 100.0, "s": "Test"}],
     }
     kpi_all_response = KpiAllResponse(**data)
     assert kpi_all_response.kpi_id == 1
@@ -351,9 +467,7 @@ def test_kpi_all_response_model():
 
 def test_kpi_calc_updated_response_model():
     """Test the KpiCalcUpdatedResponse model."""
-    data = {
-        "kpisCalcUpdated": "2020-01-01T00:00:00"
-    }
+    data = {"kpisCalcUpdated": "2020-01-01T00:00:00"}
     kpi_calc_updated_response = KpiCalcUpdatedResponse(**data)
     assert kpi_calc_updated_response.kpis_calc_updated == datetime(2020, 1, 1, 0, 0, 0)
 
@@ -364,7 +478,7 @@ def test_stock_split_model():
         "insId": 1,
         "splitDate": "2020-01-01T00:00:00",
         "splitRatio": 2.0,
-        "splitType": "forward"
+        "splitType": "forward",
     }
     stock_split = StockSplit(**data)
     assert stock_split.ins_id == 1
@@ -381,7 +495,7 @@ def test_stock_split_response_model():
                 "insId": 1,
                 "splitDate": "2020-01-01T00:00:00",
                 "splitRatio": 2.0,
-                "splitType": "forward"
+                "splitType": "forward",
             }
         ]
     }
@@ -393,11 +507,7 @@ def test_stock_split_response_model():
 
 def test_translation_item_model():
     """Test the TranslationItem model."""
-    data = {
-        "id": 1,
-        "nameSv": "Test SV",
-        "nameEn": "Test EN"
-    }
+    data = {"id": 1, "nameSv": "Test SV", "nameEn": "Test EN"}
     translation_item = TranslationItem(**data)
     assert translation_item.id == 1
     assert translation_item.name_sv == "Test SV"
@@ -411,29 +521,29 @@ def test_translation_metadata_response_model():
             {
                 "nameSv": "Test Branch SV",
                 "nameEn": "Test Branch EN",
-                "translationKey": "L_BRANCH_1"
+                "translationKey": "L_BRANCH_1",
             },
             {
                 "nameSv": "Test Sector SV",
                 "nameEn": "Test Sector EN",
-                "translationKey": "L_SECTOR_1"
+                "translationKey": "L_SECTOR_1",
             },
             {
                 "nameSv": "Test Country SV",
                 "nameEn": "Test Country EN",
-                "translationKey": "L_COUNTRY_1"
-            }
+                "translationKey": "L_COUNTRY_1",
+            },
         ]
     }
     translation_metadata_response = TranslationMetadataResponse(**data)
-    
+
     # Debug prints
     print("Branches:", translation_metadata_response.branches)
     print("First branch:", translation_metadata_response.branches[0])
     print("First branch name_sv:", translation_metadata_response.branches[0].name_sv)
     print("First branch name_en:", translation_metadata_response.branches[0].name_en)
-    print("First branch dict:", translation_metadata_response.branches[0].dict())
-    
+    print("First branch dict:", translation_metadata_response.branches[0].model_dump())
+
     assert len(translation_metadata_response.branches) == 1
     assert translation_metadata_response.branches[0].id == 1
     assert translation_metadata_response.branches[0].name_sv == "Test Branch SV"
@@ -442,4 +552,4 @@ def test_translation_metadata_response_model():
     assert translation_metadata_response.sectors[0].name_sv == "Test Sector SV"
     assert len(translation_metadata_response.countries) == 1
     assert translation_metadata_response.countries[0].id == 1
-    assert translation_metadata_response.countries[0].name_sv == "Test Country SV" 
+    assert translation_metadata_response.countries[0].name_sv == "Test Country SV"

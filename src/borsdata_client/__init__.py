@@ -10,21 +10,21 @@ Example:
 
 from .client import BorsdataClient, BorsdataClientError
 from .models import (
-    Instrument,
     Branch,
-    Market,
-    Country,
-    Sector,
-    StockPrice,
-    Report,
-    KpiMetadata,
-    InsiderRow,
-    ShortPosition,
     BuybackRow,
-    InstrumentDescription,
-    ReportCalendarDate,
+    Country,
     DividendDate,
+    InsiderRow,
+    Instrument,
+    InstrumentDescription,
+    KpiMetadata,
     KpiValue,
+    Market,
+    Report,
+    ReportCalendarDate,
+    Sector,
+    ShortPosition,
+    StockPrice,
     StockPriceLastValue,
     StockSplit,
     TranslationItem,
@@ -52,4 +52,4 @@ __all__ = [
     "StockPriceLastValue",
     "StockSplit",
     "TranslationItem",
-] 
+]

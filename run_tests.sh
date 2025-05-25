@@ -18,6 +18,9 @@ elif [ "$1" == "--coverage" ]; then
 elif [ "$1" == "--models" ]; then
     echo "Running model tests only..."
     python3 -m pytest tests/test_models.py tests/test_model_validation.py
+elif [ "$1" == "--endpoints" ]; then
+    echo "Running client tests only..."
+    python3 -m pytest tests/test_endpoints.py 
 elif [ "$1" == "--edge-cases" ]; then
     echo "Running edge case tests only..."
     python3 -m pytest tests/test_edge_cases.py

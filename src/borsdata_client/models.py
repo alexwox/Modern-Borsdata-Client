@@ -58,18 +58,20 @@ class Instrument(BaseModel):
 
 
 class StockPrice(BaseModel):
-    """Stock price data model."""
+    """Single stock price entry."""
 
-    d: str = Field(description="Date string in format YYYY-MM-DD")
-    h: float = Field(description="High price")
-    l: float = Field(description="Low price")
-    c: float = Field(description="Closing price")
-    o: float = Field(description="Opening price")
-    v: int = Field(description="Volume")
+    d: Optional[str] = Field(None, description="Date string in format YYYY-MM-DD")
+    h: Optional[float] = Field(None, description="Highest price")
+    l: Optional[float] = Field(None, description="Lowest price")
+    c: float = Field(..., description="Closing price")
+    o: Optional[float] = Field(None, description="Opening price")
+    v: Optional[int] = Field(None, description="Total volume")
 
-    def get_date(self) -> datetime:
+    def get_date(self) -> Optional[datetime]:
         """Convert the date string to a datetime object."""
-        return datetime.strptime(self.d, "%Y-%m-%d")
+        if isinstance(self.d, str):
+            return datetime.strptime(self.d, "%Y-%m-%d")
+        return None
 
 
 class KpiMetadata(BaseModel):
@@ -202,6 +204,24 @@ class StockPricesResponse(BaseModel):
 
     instrument: int
     stockPricesList: List[Dict[str, Any]]  # The actual field name from the API
+
+
+class StockPricesArrayRespList(BaseModel):
+    """Stock prices list response for an instrument."""
+
+    instrument: int = Field(..., description="Instrument ID")
+    error: Optional[str] = Field(None, description="Error message, if any")
+    stockPricesList: Optional[List[StockPrice]] = Field(
+        None, description="List of stock prices"
+    )
+
+
+class StockPricesArrayResp(BaseModel):
+    """Top-level response for stock prices array."""
+
+    stockPricesArrayList: Optional[List[StockPricesArrayRespList]] = Field(
+        None, description="List of stock prices per instrument"
+    )
 
 
 class InsiderRow(BaseModel):
@@ -370,10 +390,10 @@ class StockPriceLastValue(BaseModel):
 
     i: int = Field(description="Instrument Id")
     d: str = Field(description="Date string in format YYYY-MM-DD")
+    o: float = Field(description="Opening price")
     h: float = Field(description="High price")
     l: float = Field(description="Low price")
     c: float = Field(description="Closing price")
-    o: float = Field(description="Opening price")
     v: Optional[int] = Field(None, description="Volume")
 
 

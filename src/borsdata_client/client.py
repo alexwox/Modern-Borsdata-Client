@@ -2,6 +2,12 @@
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from tenacity import (
+    Retrying,
+    wait_random_exponential,
+    stop_after_attempt,
+    retry_if_exception,
+)
 
 import httpx
 
@@ -32,6 +38,8 @@ from .models import (
     ShortsListResponse,
     StockPrice,
     StockPriceLastResponse,
+    StockPricesArrayResp,
+    StockPricesArrayRespList,
     StockPriceLastValue,
     StockPricesResponse,
     StockSplit,
@@ -51,7 +59,7 @@ class BorsdataClient:
 
     BASE_URL = "https://apiservice.borsdata.se/v1"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, retry: bool = True, max_retries: int = 5):
         """Initialize the Borsdata API client.
 
         Args:
@@ -59,6 +67,22 @@ class BorsdataClient:
         """
         self.api_key = api_key
         self._client = httpx.Client(timeout=30.0)
+        self.retry = retry
+
+        def is_retryable_exception(exception):
+            if isinstance(exception, httpx.HTTPStatusError):
+                # Retry for 429 Too Many Requests
+                if exception.response.status_code == 429:
+                    print("Rate limit exceeded. Retrying...")
+                    return True
+            return False
+
+        self.retryer = Retrying(
+            wait=wait_random_exponential(multiplier=1, min=1, max=20),
+            stop=stop_after_attempt(max_retries),
+            reraise=True,
+            retry=retry_if_exception(is_retryable_exception),
+        )
 
     def _get(
         self, endpoint: str, params: Optional[Dict[str, Any]] = None
@@ -79,10 +103,23 @@ class BorsdataClient:
             params = {}
         params["authKey"] = self.api_key
 
-        try:
-            response = self._client.get(f"{self.BASE_URL}{endpoint}", params=params)
-            response.raise_for_status()  # This will raise an HTTPError for 4XX/5XX responses
+        def _get_wrapper(api_endpoint=endpoint, params=params):
+            response = self._client.get(api_endpoint, params=params)
+            response.raise_for_status()  # This raises HTTPStatusError for 4xx/5xx codes
             return response.json()
+
+        try:
+            if self.retry:
+                return self.retryer(
+                    _get_wrapper,
+                    api_endpoint=f"{self.BASE_URL}{endpoint}",
+                    params=params,
+                )
+            else:
+                return _get_wrapper(
+                    api_endpoint=f"{self.BASE_URL}{endpoint}", params=params
+                )
+
         except httpx.HTTPStatusError as e:
             error_msg = str(e)
             status_code = e.response.status_code
@@ -92,7 +129,7 @@ class BorsdataClient:
         except Exception as e:
             raise BorsdataClientError(f"API request failed: {str(e)}") from e
 
-    def get_branches(self) -> List[Branch]:
+    def get_branches(self, i) -> List[Branch]:
         """Get all branches/industries.
 
         Returns:
@@ -146,7 +183,7 @@ class BorsdataClient:
         response = self._get("/instruments/global")
         return InstrumentsResponse(**response).instruments or []
 
-    def get_stock_prices(
+    def get_stock_price(
         self,
         instrument_id: int,
         from_date: Optional[datetime] = None,
@@ -176,6 +213,38 @@ class BorsdataClient:
 
         # Convert each stock price dict to a StockPrice object
         return [StockPrice(**price) for price in response_model.stockPricesList]
+
+    def get_stock_prices(
+        self,
+        instrument_ids: list[int],
+        from_date: Optional[datetime] = None,
+        to_date: Optional[datetime] = None,
+    ) -> List[StockPricesArrayRespList]:
+        """Get stock prices for multiple instruments, max 50 instruments per call.
+
+        Args:
+            instrument_ids: List of instrument IDs
+            from_date: Start date for price data
+            to_date: End date for price data
+
+        Returns:
+            List of StockPrice objects
+        """
+        assert isinstance(instrument_ids, list), "instrument_ids must be a list"
+        assert len(instrument_ids) <= 50, "Max 50 instrument IDs allowed"
+
+        params = {"instList": ",".join(map(str, instrument_ids))}
+
+        if from_date:
+            params["from"] = from_date.strftime("%Y-%m-%d")
+        if to_date:
+            params["to"] = to_date.strftime("%Y-%m-%d")
+
+        response = self._get("/instruments/stockprices", params)
+        response_model = StockPricesArrayResp(**response)
+
+        # Return list of instrument stock prices
+        return response_model.stockPricesArrayList
 
     def get_reports(
         self,

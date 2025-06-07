@@ -11,7 +11,7 @@ from datetime import datetime
 
 api_key = os.environ.get("BORSDATA_API_KEY")
 
-with BorsdataClient(api_key) as client:
+with BorsdataClient(api_key, retry=True, max_retries=5) as client:
     # Get all instruments
     instruments = client.get_instruments()
 

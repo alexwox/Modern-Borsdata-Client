@@ -2,14 +2,14 @@
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from tenacity import (
-    Retrying,
-    wait_random_exponential,
-    stop_after_attempt,
-    retry_if_exception,
-)
 
 import httpx
+from tenacity import (
+    Retrying,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_random_exponential,
+)
 
 from .models import (
     Branch,
@@ -38,9 +38,9 @@ from .models import (
     ShortsListResponse,
     StockPrice,
     StockPriceLastResponse,
+    StockPriceLastValue,
     StockPricesArrayResp,
     StockPricesArrayRespList,
-    StockPriceLastValue,
     StockPricesResponse,
     StockSplit,
     StockSplitResponse,
@@ -64,12 +64,16 @@ class BorsdataClient:
 
         Args:
             api_key: Your Borsdata API authentication key
+            retry: Whether to enable retry on rate limit errors
+            max_retries: Maximum number of retries for rate limit errors
         """
         self.api_key = api_key
         self._client = httpx.Client(timeout=30.0)
         self.retry = retry
+        self.retryer = None
 
         def is_retryable_exception(exception):
+            """Check if the exception is retryable."""
             if isinstance(exception, httpx.HTTPStatusError):
                 # Retry for 429 Too Many Requests
                 if exception.response.status_code == 429:
@@ -129,7 +133,7 @@ class BorsdataClient:
         except Exception as e:
             raise BorsdataClientError(f"API request failed: {str(e)}") from e
 
-    def get_branches(self, i) -> List[Branch]:
+    def get_branches(self) -> List[Branch]:
         """Get all branches/industries.
 
         Returns:
@@ -183,7 +187,7 @@ class BorsdataClient:
         response = self._get("/instruments/global")
         return InstrumentsResponse(**response).instruments or []
 
-    def get_stock_price(
+    def get_stock_prices(
         self,
         instrument_id: int,
         from_date: Optional[datetime] = None,
@@ -214,7 +218,7 @@ class BorsdataClient:
         # Convert each stock price dict to a StockPrice object
         return [StockPrice(**price) for price in response_model.stockPricesList]
 
-    def get_stock_prices(
+    def get_stock_prices_batch(
         self,
         instrument_ids: list[int],
         from_date: Optional[datetime] = None,
@@ -231,7 +235,7 @@ class BorsdataClient:
             List of StockPrice objects
         """
         assert isinstance(instrument_ids, list), "instrument_ids must be a list"
-        assert len(instrument_ids) <= 50, "Max 50 instrument IDs allowed"
+        assert len(instrument_ids) <= 50, "Max 50 instrument IDs allowed per request"
 
         params = {"instList": ",".join(map(str, instrument_ids))}
 
@@ -306,6 +310,58 @@ class BorsdataClient:
         """
         response = self._get("/instruments/kpis/updated")
         return KpiCalcUpdatedResponse(**response).kpis_calc_updated
+
+    def get_kpi_history(
+        self,
+        instrument_id: str,
+        kpi_id: int,
+        report_type: str,
+        price_type: str = "mean",
+        max_count: Optional[int] = None,
+    ) -> List[KpiAllResponse]:
+        """Get KPI history for an instrument.
+
+        Args:
+            instrument_id: ID of the instrument
+            kpi_id: ID of the KPI
+            report_type: Type of report ('year', 'r12', 'quarter')
+            price_type: Type of price calculation
+            max_count: Maximum number of results to return
+
+        Returns:
+            List of KPI responses
+        """
+        params = {}
+        if max_count:
+            params["maxCount"] = str(max_count)
+
+        response = self._get(
+            f"/instruments/{instrument_id}/kpis/{kpi_id}/{report_type}/{price_type}/history",
+            params,
+        )
+        return KpiAllResponse(**response)
+
+    def get_kpi_summary(
+        self, instrument_id: str, report_type: str, max_count: Optional[int] = None
+    ) -> List[KpiSummaryGroup]:
+        """Get all KPI history for an instrument.
+
+        Args:
+            instrument_id: ID of the instrument
+            report_type: Type of report ('year', 'r12', 'quarter')
+            max_count: Maximum number of results to return
+
+        Returns:
+            List of all KPI responses
+        """
+        params = {}
+        if max_count:
+            params["maxCount"] = str(max_count)
+
+        response = self._get(
+            f"/instruments/{instrument_id}/kpis/{report_type}/summary", params
+        )
+        return KpisSummaryResponse(**response).kpis or []
 
     def get_insider_holdings(
         self, instrument_ids: List[int]
@@ -388,58 +444,6 @@ class BorsdataClient:
         params = {"instList": ",".join(map(str, instrument_ids))}
         response = self._get("/instruments/dividend/calendar", params)
         return DividendCalendarListResponse(**response).list or []
-
-    def get_kpi_history(
-        self,
-        instrument_id: str,
-        kpi_id: int,
-        report_type: str,
-        price_type: str = "mean",
-        max_count: Optional[int] = None,
-    ) -> List[KpiAllResponse]:
-        """Get KPI history for an instrument.
-
-        Args:
-            instrument_id: ID of the instrument
-            kpi_id: ID of the KPI
-            report_type: Type of report ('year', 'r12', 'quarter')
-            price_type: Type of price calculation
-            max_count: Maximum number of results to return
-
-        Returns:
-            List of KPI responses
-        """
-        params = {}
-        if max_count:
-            params["maxCount"] = str(max_count)
-
-        response = self._get(
-            f"/instruments/{instrument_id}/kpis/{kpi_id}/{report_type}/{price_type}/history",
-            params,
-        )
-        return KpiAllResponse(**response)
-
-    def get_kpi_summary(
-        self, instrument_id: str, report_type: str, max_count: Optional[int] = None
-    ) -> List[KpiSummaryGroup]:
-        """Get all KPI history for an instrument.
-
-        Args:
-            instrument_id: ID of the instrument
-            report_type: Type of report ('year', 'r12', 'quarter')
-            max_count: Maximum number of results to return
-
-        Returns:
-            List of all KPI responses
-        """
-        params = {}
-        if max_count:
-            params["maxCount"] = str(max_count)
-
-        response = self._get(
-            f"/instruments/{instrument_id}/kpis/{report_type}/summary", params
-        )
-        return KpisSummaryResponse(**response).kpis or []
 
     def get_last_stock_prices(self) -> List[StockPriceLastValue]:
         """Get last stock prices for all instruments.

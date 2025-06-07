@@ -1,5 +1,7 @@
 # Borsdata API Client
+
 ### [NOT AFFILIATED WITH BÖRSDATA]
+
 ### [THIS IS A THIRD PARTY LIBRARY]
 
 This is a modern Python client for the Borsdata API, featuring:
@@ -11,7 +13,7 @@ This is a modern Python client for the Borsdata API, featuring:
 - Context manager support
 - Intuitive API design
 
-For the official documentation check out: 
+For the official documentation check out:
 [https://github.com/Borsdata-Sweden/API]
 
 ## Installation
@@ -106,19 +108,23 @@ Comprehensive documentation is available in the `docs` directory:
 - `get_branches()` - Get all branches/industries
 - `get_countries()` - Get all countries
 - `get_markets()` - Get all markets
+- `get_sectors()` - Get all sectors
 - `get_instruments()` - Get all Nordic instruments
 - `get_global_instruments()` - Get all global instruments (Pro+ subscription required)
 - `get_stock_prices()` - Get stock prices for an instrument
+- `get_stock_prices_batch()` - Get stock prices for a batch of instrument
 - `get_reports()` - Get financial reports for an instrument
+- `get_reports_metadata()` - Get metadata for all financial report values
 - `get_kpi_metadata()` - Get metadata for all KPIs
+- `get_kpi_updated()` - Get last update time for KPIs
+- `get_kpi_history()` - Get one KPIs history for an instrument
+- `get_kpi_summary()` - Get summary of KPIs history for an instrument (Note: Not all kpi's)
 - `get_insider_holdings()` - Get insider holdings for instruments
 - `get_short_positions()` - Get short positions for all instruments
 - `get_buybacks()` - Get buybacks for instruments
 - `get_instrument_descriptions()` - Get descriptions for instruments
 - `get_report_calendar()` - Get report calendar for instruments
 - `get_dividend_calendar()` - Get dividend calendar for instruments
-- `get_kpi_history()` - Get KPI history for an instrument
-- `get_kpi_updated()` - Get last update time for KPIs
 - `get_last_stock_prices()` - Get last stock prices for all instruments
 - `get_last_global_stock_prices()` - Get last stock prices for all global instruments
 - `get_stock_prices_by_date()` - Get stock prices for all instruments on a specific date
@@ -140,6 +146,8 @@ except BorsdataClientError as e:
     print(f"API request failed: {e}")
 ```
 
+Retries five times by default if reaching the APIs rate limit (100 requests / 10 seconds).
+
 ## Data Models
 
 All API responses are validated and converted to Pydantic models. See the [Models Reference](docs/api/models.md) for details.
@@ -151,6 +159,7 @@ All API responses are validated and converted to Pydantic models. See the [Model
 - httpx>=0.25.2
 - python-dateutil>=2.8.2
 - typing-extensions>=4.8.0
+- tenacity>=9.0.0
 
 ## License
 

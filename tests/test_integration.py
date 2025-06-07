@@ -79,6 +79,25 @@ def test_get_stock_prices_integration(real_client):
     assert len(prices) >= 0
 
 
+def test_get_stock_prices_batch(real_client):
+    """Integration test for get_stock_prices_batch."""
+    # Get the first two instruments to test with
+    instruments = real_client.get_instruments()
+    instrument_ids = [instruments[0].ins_id, instruments[1].ins_id]
+
+    # Get stock prices for the last 7 days
+    to_date = datetime.now()
+    from_date = to_date - timedelta(days=7)
+
+    prices = real_client.get_stock_prices_batch(
+        instrument_ids=instrument_ids, from_date=from_date, to_date=to_date
+    )
+
+    # We might not have prices for all days (weekends, holidays)
+    # but we should have at least one if the API is working
+    assert len(prices) >= 0
+
+
 def test_get_reports_integration(real_client):
     """Integration test for get_reports."""
     # Get the first instrument to test with

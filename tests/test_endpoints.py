@@ -27,6 +27,8 @@ from src.borsdata_client.models import (
     ShortsResponse,
     StockPrice,
     StockPriceLastValue,
+    StockPricesArrayResp,
+    StockPricesArrayRespList,
     StockSplit,
     TranslationMetadataResponse,
 )
@@ -279,6 +281,55 @@ def test_get_stock_prices(mock_client):
     assert prices[0].d == "2023-01-01"
     assert prices[0].h == 100.5
     assert prices[0].c == 100.0
+
+
+def test_get_stock_prices_batch(mock_client):
+    """Test the get_stock_prices_batch method."""
+    # Create mock response
+    create_mock_response(
+        "instruments/stockprices",
+        {
+            "stockPricesArrayList": [
+                {
+                    "instrument": 1,
+                    "stockPricesList": [
+                        {
+                            "d": "2023-01-01",
+                            "h": 100.5,
+                            "l": 99.0,
+                            "c": 100.0,
+                            "o": 99.5,
+                            "v": 10000,
+                        }
+                    ],
+                },
+                {
+                    "instrument": 2,
+                    "stockPricesList": [
+                        {
+                            "d": "2023-01-02",
+                            "h": 101.5,
+                            "l": 100.0,
+                            "c": 101.0,
+                            "o": 100.5,
+                            "v": 12000,
+                        }
+                    ],
+                },
+            ]
+        },
+    )
+
+    # Call the method
+    prices = mock_client.get_stock_prices_batch(instrument_ids=[1, 2])
+
+    # Verify the result
+    assert len(prices) == 2
+    assert isinstance(prices[0], StockPricesArrayRespList)
+    assert prices[0].instrument == 1
+    assert prices[0].stockPricesList[0].d == "2023-01-01"
+    assert prices[0].stockPricesList[0].h == 100.5
+    assert prices[0].stockPricesList[0].c == 100.0
 
 
 # Test for get_reports

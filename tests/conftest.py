@@ -33,14 +33,16 @@ def mock_client(monkeypatch):
     def mock_get(self, endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Mock the _get method to return test data."""
         # Convert endpoint to a filename-friendly format
+        print(f"[Mock Client]: endpoint: {endpoint}")
         endpoint_parts = endpoint.strip("/").split("/")
         filename = "_".join(endpoint_parts) + ".json"
 
         # Look for the mock response file in the fixtures directory
         fixtures_dir = Path(__file__).parent / "fixtures"
         fixture_path = fixtures_dir / filename
-
+        print(f"[Mock Client]: Looking for fixture file: {fixture_path}")
         if fixture_path.exists():
+            print(f"[Mock Client]: Using fixture file: {fixture_path}")
             with open(fixture_path, "r") as f:
                 return json.load(f)
         else:

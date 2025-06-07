@@ -15,6 +15,7 @@ from src.borsdata_client.models import (
     ReportMetadata,
     StockPrice,
     StockPriceLastValue,
+    StockPricesArrayRespList,
     StockSplit,
 )
 
@@ -82,6 +83,25 @@ def test_stock_price_validation():
 
     # Valid data should not raise an error
     StockPrice(d="2020-01-01", h=100.0, l=90.0, c=95.0, o=92.0, v=1000)
+
+
+def test_stock_prices_array_resp_list_validation():
+    """Test that StockPricesArrayRespList model validates input data."""
+    # Missing required field
+    with pytest.raises(ValidationError):
+        StockPricesArrayRespList()
+
+    # Invalid type for stockPricesList
+    with pytest.raises(ValidationError):
+        StockPricesArrayRespList(stockPricesList="not_a_list")
+
+    # Valid data should not raise an error
+    StockPricesArrayRespList(
+        instrument=1,
+        stockPricesList=[
+            StockPrice(d="2020-01-01", h=100.0, l=90.0, c=95.0, o=92.0, v=1000),
+        ],
+    )
 
 
 def test_kpi_metadata_validation():

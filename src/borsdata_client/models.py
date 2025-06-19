@@ -101,6 +101,45 @@ class KpisSummaryResponse(BaseModel):
     kpis: Optional[List[KpiSummaryGroup]]
 
 
+class KpiHistory(BaseModel):
+    y: int = Field(description="Year")
+    p: int = Field(description="Period")
+    v: Optional[float] = Field(None, description="Value (nullable)")
+
+    @property
+    def year(self) -> int:
+        return self.y
+
+    @property
+    def period(self) -> int:
+        return self.p
+
+    @property
+    def value(self) -> Optional[float]:
+        return self.v
+
+
+class KpisHistoryComp(BaseModel):
+    instrument: int
+    values: Optional[List[KpiHistory]] = Field(
+        None, description="List of KPI history values"
+    )
+    error: Optional[str] = Field(None, description="Optional error message")
+    kpi_id: Optional[int] = Field(None, alias="kpiId", description="KPI ID")
+
+    # @property
+    # def kpi_id(self) -> int:
+    #     """ To comply with the other kpi-related models. """
+    #     return self.instrument
+
+
+class KpisHistoryArrayResp(BaseModel):
+    kpi_id: int = Field(alias="kpiId")
+    report_time: Optional[str] = Field(None, alias="reportTime")
+    price_value: Optional[str] = Field(None, alias="priceValue")
+    kpis_list: Optional[List[KpisHistoryComp]] = Field(None, alias="kpisList")
+
+
 class Report(BaseModel):
     """Financial report model."""
 
@@ -153,6 +192,18 @@ class Report(BaseModel):
     currency_ratio: Optional[float] = Field(None, alias="currency_Ratio")
     net_sales: Optional[float] = Field(None, alias="net_Sales")
     report_date: Optional[datetime] = Field(None, alias="report_Date")
+
+
+class ReportsCombineResp(BaseModel):
+    instrument: int
+    error: Optional[str] = None
+    reports_year: Optional[List[Report]] = Field(None, alias="reportsYear")
+    reports_quarter: Optional[List[Report]] = Field(None, alias="reportsQuarter")
+    reports_r12: Optional[List[Report]] = Field(None, alias="reportsR12")
+
+
+class ReportsArrayResp(BaseModel):
+    report_list: Optional[List[ReportsCombineResp]] = Field(None, alias="reportList")
 
 
 class ReportMetadata(BaseModel):

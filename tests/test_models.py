@@ -25,7 +25,10 @@ from src.borsdata_client.models import (
     InstrumentsResponse,
     KpiAllResponse,
     KpiCalcUpdatedResponse,
+    KpiHistory,
     KpiMetadata,
+    KpisHistoryArrayResp,
+    KpisHistoryComp,
     KpisSummaryResponse,
     KpiSummaryGroup,
     KpiSummaryValue,
@@ -227,6 +230,62 @@ def test_kpi_summary_response_model():
     assert kpi_summary_response.kpis[0].values[0].year == 2020
     assert kpi_summary_response.kpis[0].values[0].period == 1
     assert kpi_summary_response.kpis[0].values[0].value == 100.0
+
+
+def test_kpi_value_model():
+    """Test the KpiValue model."""
+    data = {
+        "year": 2020,
+        "period": 1,
+        "value": 100.0,
+    }
+    kpi_value = KpiValue(**data)
+    assert kpi_value.year == 2020
+    assert kpi_value.period == 1
+    assert kpi_value.value == 100.0
+
+
+def test_kpi_history_model():
+    """Test the KpiHistory model."""
+    data = {
+        "y": 2020,
+        "p": 1,
+        "v": 100.0,
+    }
+    kpi_history = KpiHistory(**data)
+    assert kpi_history.year == 2020
+    assert kpi_history.y == 2020
+    assert kpi_history.period == 1
+    assert kpi_history.p == 1
+    assert kpi_history.value == 100.0
+    assert kpi_history.v == 100.0
+
+
+def test_kpis_history_array_resp_model():
+    """Test the KpisHistoryArrayResp model."""
+    data = {
+        "kpiId": 1,
+        "priceValue": "mean",
+        "reportTime": "2021-01-01",
+        "kpisList": [
+            {
+                "instrument": 1,
+                "kpi_id": None,
+                "error": None,
+                "values": [
+                    {"y": 2020, "p": 1, "v": 100.0},
+                    {"y": 2020, "p": 2, "v": 200.0},
+                ],
+            }
+        ],
+    }
+    kpis_history_array_resp = KpisHistoryArrayResp(**data)
+    assert kpis_history_array_resp.kpi_id == 1
+    assert kpis_history_array_resp.price_value == "mean"
+    assert len(kpis_history_array_resp.kpis_list) == 1
+    assert kpis_history_array_resp.kpis_list[0].kpi_id is None
+    assert kpis_history_array_resp.kpis_list[0].instrument == 1
+    assert len(kpis_history_array_resp.kpis_list[0].values) == 2
 
 
 def test_report_model():

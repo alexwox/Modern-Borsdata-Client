@@ -1,7 +1,7 @@
 """Borsdata API client implementation."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 import httpx
 from tenacity import (
@@ -25,6 +25,7 @@ from .models import (
     KpiAllResponse,
     KpiCalcUpdatedResponse,
     KpiMetadata,
+    KpisHistoryArrayResp,
     KpisSummaryResponse,
     KpiSummaryGroup,
     Market,
@@ -33,6 +34,8 @@ from .models import (
     ReportCalendarListResponse,
     ReportMetadata,
     ReportMetadataResponse,
+    ReportsArrayResp,
+    ReportsCombineResp,
     Sector,
     SectorsResponse,
     ShortsListResponse,
@@ -220,22 +223,26 @@ class BorsdataClient:
 
     def get_stock_prices_batch(
         self,
-        instrument_ids: list[int],
+        instrument_ids: Iterable[int],
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
     ) -> List[StockPricesArrayRespList]:
         """Get stock prices for multiple instruments, max 50 instruments per call.
 
         Args:
-            instrument_ids: List of instrument IDs
+            instrument_ids: Iterable of instrument IDs
             from_date: Start date for price data
             to_date: End date for price data
 
         Returns:
             List of StockPrice objects
         """
-        assert isinstance(instrument_ids, list), "instrument_ids must be a list"
-        assert len(instrument_ids) <= 50, "Max 50 instrument IDs allowed per request"
+        assert isinstance(
+            instrument_ids, Iterable
+        ), "instrument_ids must be an iterable"
+        assert (
+            len(list(instrument_ids)) <= 50
+        ), "Max 50 instrument IDs allowed per request"
 
         params = {"instList": ",".join(map(str, instrument_ids))}
 
@@ -277,6 +284,56 @@ class BorsdataClient:
             f"/instruments/{instrument_id}/reports/{report_type}", params
         )
         return [Report(**report) for report in response.get("reports", [])]
+
+    def get_reports_batch(
+        self,
+        instrument_ids: Iterable[int],
+        max_year_count: Optional[int] = 10,
+        max_quarter_r12_count: Optional[int] = 10,
+        original_currency: bool = False,
+    ) -> List[ReportsCombineResp]:
+        """Get financial reports for multiple instruments, max 50 instruments per call.
+
+        Args:
+            instrument_ids: Iterable of instrument IDs
+            max_year_count: Maximum number of year reports to return, max 20.
+            max_quarter_r12_count: Maximum number of quarter/R12 reports to return, max 40.
+            original_currency: Whether to return values in original currency
+
+        Returns:
+            List of Report objects
+        """
+        assert isinstance(
+            instrument_ids, Iterable
+        ), "instrument_ids must be an iterable"
+        assert (
+            len(list(instrument_ids)) <= 50
+        ), "Max 50 instrument IDs allowed per request"
+        assert max_quarter_r12_count is None or isinstance(
+            max_quarter_r12_count, int
+        ), "max_quarter_r12_count must be an integer"
+        assert max_year_count <= 20, "max_year_count must be 20 or less"
+        assert max_quarter_r12_count <= 40, "max_quarter_r12_count must be 40 or less"
+
+        params = {"instList": ",".join(map(str, instrument_ids))}
+
+        if max_year_count is not None:
+            assert (
+                isinstance(max_year_count, int) and 0 < max_year_count <= 20
+            ), "max_year_count must be a positive integer"
+            params["maxYearCount"] = str(max_year_count)
+        if max_quarter_r12_count is not None:
+            assert (
+                isinstance(max_quarter_r12_count, int)
+                and 0 < max_quarter_r12_count <= 40
+            ), "max_quarter_r12_count must be a positive integer"
+            params["maxQuarterR12Count"] = str(max_quarter_r12_count)
+
+        params["original"] = "1" if original_currency else "0"
+
+        response = self._get(f"/instruments/reports", params)
+        response_model = ReportsArrayResp(**response)
+        return response_model.report_list
 
     def get_reports_metadata(
         self,
@@ -341,8 +398,47 @@ class BorsdataClient:
         )
         return KpiAllResponse(**response)
 
+    def get_kpi_history_batch(
+        self,
+        instrument_ids: Iterable[int],
+        kpi_id: int,
+        report_type: str,
+        price_type: str = "mean",
+        max_count: Optional[int] = None,
+    ) -> List[KpiAllResponse]:
+        """Get KPI history for multiple instruments, max 50 instruments per call.
+
+        Args:
+            instrument_ids: IDs of the instruments
+            kpi_id: ID of the KPI
+            report_type: Type of report ('year', 'r12', 'quarter')
+            price_type: Type of price calculation
+            max_count: Maximum number of results to return, 10 by default. report_type 'year' can return max 20, 'r12' and 'quarter' can return max 40.
+
+        Returns:
+            List of KPI responses
+        """
+
+        assert isinstance(
+            instrument_ids, Iterable
+        ), "instrument_ids must be an iterable"
+        assert (
+            len(list(instrument_ids)) <= 50
+        ), "Max 50 instrument IDs allowed per request"
+
+        params = {"instList": ",".join(map(str, instrument_ids))}
+        if max_count:
+            params["maxCount"] = str(max_count)
+
+        response = self._get(
+            f"/instruments/kpis/{kpi_id}/{report_type}/{price_type}/history",
+            params,
+        )
+
+        return KpisHistoryArrayResp(**response)
+
     def get_kpi_summary(
-        self, instrument_id: str, report_type: str, max_count: Optional[int] = None
+        self, instrument_id: int, report_type: str, max_count: Optional[int] = None
     ) -> List[KpiSummaryGroup]:
         """Get all KPI history for an instrument.
 
@@ -364,7 +460,7 @@ class BorsdataClient:
         return KpisSummaryResponse(**response).kpis or []
 
     def get_insider_holdings(
-        self, instrument_ids: List[int]
+        self, instrument_ids: Iterable[int]
     ) -> List[InsiderListResponse]:
         """Get insider holdings for specified instruments.
 
@@ -387,7 +483,7 @@ class BorsdataClient:
         response = self._get("/holdings/shorts")
         return ShortsListResponse(**response).list or []
 
-    def get_buybacks(self, instrument_ids: List[int]) -> List[BuybackListResponse]:
+    def get_buybacks(self, instrument_ids: Iterable[int]) -> List[BuybackListResponse]:
         """Get buyback data for specified instruments.
 
         Args:
@@ -401,12 +497,12 @@ class BorsdataClient:
         return BuybackListResponse(**response).list or []
 
     def get_instrument_descriptions(
-        self, instrument_ids: List[int]
+        self, instrument_ids: Iterable[int]
     ) -> List[InstrumentDescriptionListResponse]:
         """Get descriptions for specified instruments.
 
         Args:
-            instrument_ids: List of instrument IDs to get descriptions for
+            instrument_ids: Iterable of instrument IDs to get descriptions for
 
         Returns:
             List of instrument description responses
@@ -416,12 +512,12 @@ class BorsdataClient:
         return InstrumentDescriptionListResponse(**response).list or []
 
     def get_report_calendar(
-        self, instrument_ids: List[int]
+        self, instrument_ids: Iterable[int]
     ) -> List[ReportCalendarListResponse]:
         """Get report calendar for specified instruments.
 
         Args:
-            instrument_ids: List of instrument IDs to get calendar for
+            instrument_ids: Iterable of instrument IDs to get calendar for
 
         Returns:
             List of report calendar responses
@@ -431,12 +527,12 @@ class BorsdataClient:
         return ReportCalendarListResponse(**response).list or []
 
     def get_dividend_calendar(
-        self, instrument_ids: List[int]
+        self, instrument_ids: Iterable[int]
     ) -> List[DividendCalendarListResponse]:
         """Get dividend calendar for specified instruments.
 
         Args:
-            instrument_ids: List of instrument IDs to get calendar for
+            instrument_ids: Iterable of instrument IDs to get calendar for
 
         Returns:
             List of dividend calendar responses

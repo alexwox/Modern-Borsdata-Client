@@ -24,6 +24,7 @@ from src.borsdata_client.models import (
     Market,
     Report,
     ReportCalendarResponse,
+    ReportsCombineResp,
     ShortsResponse,
     StockPrice,
     StockPriceLastValue,
@@ -393,6 +394,73 @@ def test_get_reports(mock_client):
     assert reports[0].year == 2020
     assert reports[0].revenues == 1000
     assert reports[0].earnings_per_share == 2
+
+
+# Test for get_report_batch
+def test_get_report_batch(mock_client):
+    """Test the get_report_batch method."""
+    # Create mock response
+    rep_data = {
+        "year": 2020,
+        "period": 1,
+        "revenues": 1000,
+        "gross_Income": 800.0,
+        "operating_Income": 600.0,
+        "profit_Before_Tax": 500.0,
+        "profit_To_Equity_Holders": 400.0,
+        "earnings_Per_Share": 2.0,
+        "number_Of_Shares": 200.0,
+        "dividend": 1.0,
+        "intangible_Assets": 300.0,
+        "tangible_Assets": 400.0,
+        "financial_Assets": 500.0,
+        "non_Current_Assets": 1200.0,
+        "cash_And_Equivalents": 200.0,
+        "current_Assets": 1500.0,
+        "total_Assets": 3000.0,
+        "total_Equity": 1800.0,
+        "non_Current_Liabilities": 700.0,
+        "current_Liabilities": 500.0,
+        "total_Liabilities_And_Equity": 3000.0,
+        "net_Debt": 100.0,
+        "cash_Flow_From_Operating_Activities": 600.0,
+        "cash_Flow_From_Investing_Activities": -200.0,
+        "cash_Flow_From_Financing_Activities": -100.0,
+        "cash_Flow_For_The_Year": 300.0,
+        "free_Cash_Flow": 400.0,
+        "stock_Price_Average": 50.0,
+        "stock_Price_High": 60.0,
+        "stock_Price_Low": 40.0,
+        "report_Start_Date": "2020-01-01T00:00:00",
+        "report_End_Date": "2020-12-31T00:00:00",
+        "broken_Fiscal_Year": False,
+        "currency": "USD",
+    }
+    create_mock_response(
+        "instruments/reports",
+        {
+            "reportList": [
+                {
+                    "instrument": 1,
+                    "error": "No error",
+                    "reportsYear": [rep_data],
+                    "reportsQuarter": [rep_data],
+                    "reportsR12": [rep_data],
+                }
+            ]
+        },
+    )
+    # Call the method
+    reports = mock_client.get_reports_batch(instrument_ids=[1])
+
+    # Verify the result
+    assert len(reports) == 1
+    assert isinstance(reports[0], ReportsCombineResp)
+    assert isinstance(reports[0].reports_year[0], Report)
+    assert reports[0].instrument == 1
+    assert reports[0].reports_year[0].year == 2020
+    assert reports[0].reports_quarter[0].revenues == 1000
+    assert reports[0].reports_r12[0].earnings_per_share == 2
 
 
 # Test for get_kpi_metadata

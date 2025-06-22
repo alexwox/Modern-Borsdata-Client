@@ -121,16 +121,11 @@ class KpiHistory(BaseModel):
 
 class KpisHistoryComp(BaseModel):
     instrument: int
+    kpi_id: Optional[int] = Field(None, alias="kpiId", description="KPI ID")
+    error: Optional[str] = Field(None, description="Optional error message")
     values: Optional[List[KpiHistory]] = Field(
         None, description="List of KPI history values"
     )
-    error: Optional[str] = Field(None, description="Optional error message")
-    kpi_id: Optional[int] = Field(None, alias="kpiId", description="KPI ID")
-
-    # @property
-    # def kpi_id(self) -> int:
-    #     """ To comply with the other kpi-related models. """
-    #     return self.instrument
 
 
 class KpisHistoryArrayResp(BaseModel):

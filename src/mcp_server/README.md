@@ -4,7 +4,7 @@ An MCP (Model Context Protocol) server that exposes the Borsdata API through wel
 
 ## Overview
 
-This MCP server provides AI assistants with structured access to Borsdata's financial data API. It includes 27 tools organized into logical categories for efficient data retrieval.
+This MCP server provides AI assistants with structured access to Borsdata's financial data API. It includes 28 tools organized into logical categories for efficient data retrieval.
 
 ## Features
 

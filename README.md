@@ -100,7 +100,7 @@ This library includes an MCP (Model Context Protocol) server that allows AI assi
 
 ### Features
 
-- **27 specialized tools** organized into logical categories
+- **28 specialized tools** organized into logical categories
 - **Efficient batch operations** for analyzing multiple stocks
 - **Comprehensive financial data** including prices, reports, KPIs, and more
 - **Easy integration** with Claude Desktop and other MCP clients

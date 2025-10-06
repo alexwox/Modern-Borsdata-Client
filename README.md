@@ -1,4 +1,4 @@
-# Borsdata API Client
+# Borsdata API Client (& MCP Server)
 
 ### [NOT AFFILIATED WITH BÖRSDATA]
 

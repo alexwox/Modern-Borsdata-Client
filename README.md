@@ -12,6 +12,7 @@ This is a modern Python client for the Borsdata API, featuring:
 - Comprehensive error handling
 - Context manager support
 - Intuitive API design
+- **MCP Server for AI integration** 🤖
 
 For the official documentation check out:
 [https://github.com/Borsdata-Sweden/API]
@@ -92,6 +93,62 @@ api_key = os.getenv("BORSDATA_API_KEY")
 # Initialize client
 client = BorsdataClient(api_key)
 ```
+
+## MCP Server for AI Integration
+
+This library includes an MCP (Model Context Protocol) server that allows AI assistants like Claude to directly access Borsdata financial data through well-defined tools.
+
+### Features
+
+- **27 specialized tools** organized into logical categories
+- **Efficient batch operations** for analyzing multiple stocks
+- **Comprehensive financial data** including prices, reports, KPIs, and more
+- **Easy integration** with Claude Desktop and other MCP clients
+
+### Quick Start with MCP Server
+
+```bash
+# Install MCP support
+pip install mcp>=1.0.0
+
+# Set your API key
+export BORSDATA_API_KEY="your_api_key_here"
+
+# Run the server
+cd src
+python -m mcp_server.server
+```
+
+### Configuration for Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "borsdata": {
+      "command": "python",
+      "args": ["-m", "mcp_server.server"],
+      "cwd": "/path/to/Modern-Borsdata-Client/src",
+      "env": {
+        "BORSDATA_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+**Reference Data**: get_instruments, get_markets, get_branches, get_sectors, get_countries  
+**Stock Prices**: get_stock_prices, get_stock_prices_batch, get_last_stock_prices  
+**Financial Reports**: get_reports, get_reports_batch, get_reports_metadata  
+**KPIs**: get_kpi_metadata, get_kpi_history, get_kpi_history_batch, get_kpi_summary  
+**Holdings**: get_insider_holdings, get_short_positions, get_buybacks  
+**Calendars**: get_report_calendar, get_dividend_calendar  
+**Other**: get_stock_splits, get_translation_metadata
+
+📚 **Full documentation**: See [MCP Server README](src/mcp_server/README.md) and [Usage Guide](src/mcp_server/USAGE_GUIDE.md)
 
 ## Documentation
 

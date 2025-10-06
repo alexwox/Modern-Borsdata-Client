@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import httpx
 import pytest
 
-from src.borsdata_client.client import BorsdataClient, BorsdataClientError
+from borsdata_client.client import BorsdataClient, BorsdataClientError
 
 
 def test_empty_response_handling(monkeypatch):

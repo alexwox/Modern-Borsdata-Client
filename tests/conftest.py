@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict
 import pytest
 from httpx import Response
 
-from src.borsdata_client.client import BorsdataClient
+from borsdata_client.client import BorsdataClient
 
 
 class MockResponse(Response):

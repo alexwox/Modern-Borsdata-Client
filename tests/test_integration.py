@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from src.borsdata_client.client import BorsdataClient
+from borsdata_client.client import BorsdataClient
 
 # Skip all tests in this module if no API key is available
 pytestmark = pytest.mark.skipif(

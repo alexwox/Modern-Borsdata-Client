@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# from src.borsdata_client.client import BorsdataClient
-from src.borsdata_client.models import (
+# from borsdata_client.client import BorsdataClient
+from borsdata_client.models import (
     Branch,
     BuybackResponse,
     Country,

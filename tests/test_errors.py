@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.borsdata_client.client import BorsdataClientError
+from borsdata_client.client import BorsdataClientError
 
 
 def test_borsdata_client_error():

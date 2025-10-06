@@ -5,7 +5,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from src.borsdata_client.models import (
+from borsdata_client.models import (
     Branch,
     InsiderRow,
     Instrument,
